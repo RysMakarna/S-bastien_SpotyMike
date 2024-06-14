@@ -26,6 +26,16 @@ class ArtistRepository extends ServiceEntityRepository
         parent::__construct($registry, Artist::class);
     }
 
+    public function findFeaturingArtist($songId): array
+    {
+        return $this->createQueryBuilder('artist_id')
+            //->innerJoin('artist_id', 'WITH', 'artist_id.artist_id = artist.artistId')
+            ->andWhere('artist_id.song_Id = :songId')
+            ->setParameter('songId', $songId)
+            ->getQuery()
+            ->getResult();
+    }
+
     //    /**
     //     * @return Artist[] Returns an array of Artist objects
     //     */

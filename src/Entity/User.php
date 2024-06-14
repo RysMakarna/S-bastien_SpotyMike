@@ -265,22 +265,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         ];
     }
-    public function UserSerialAlbum()
-    {
-        $sexe = $this->getSexe() === 0 ? 'Homme' : ($this->getSexe() === 1 ? 'Femme' : 'Homme');
-
-        return [
-            "firstname" => $this->getFirstname(),
-            "lastname" => $this->getLastname(),
-            "email" => $this->getEmail(),
-            "tel" => $this->getTel() ? $this->getTel() : "",
-            "sexe" => $sexe,
-            "dateBirth" => $this->getBirthday()->format('d-m-Y'), // Will need to be in format('d-m-Y'),
-            "createAt" => $this->getCreateAt()->format('d-m-Y'),
-            "updateAt" => $this->getUpdateAt()->format('Y-m-d'),
-
-        ];
-    }
     public function UserSeriaLogin()
     {
         $sexe = $this->getSexe() === 0 ? 'Homme' : ($this->getSexe() === 1 ? 'Femme' : 'Homme');

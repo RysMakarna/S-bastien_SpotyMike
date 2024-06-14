@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\AlbumRepository;
+use App\Repository\ArtistRepository;
+use App\Repository\SongRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -11,6 +13,9 @@ use Doctrine\DBAL\Types\Types;
 #[ORM\Entity(repositoryClass: AlbumRepository::class)]
 class Album
 {
+
+    private $songRepository;
+    private $artistRepository;
 
     #[ORM\Id]
     #[ORM\Column(name:'idAlbum',type:"string", length: 90)]
@@ -44,9 +49,11 @@ class Album
     private ?Artist $Artist_User_idUser = null;
 
 
-    public function __construct()
+    public function __construct(SongRepository $songRepository, ArtistRepository $artistRepository)
     {
         $this->song_idSong = new ArrayCollection();
+        $this->songRepository = $songRepository;
+        $this->artistRepository = $artistRepository;
     }
 
     public function getIdAlbum(): ?string
@@ -178,13 +185,30 @@ class Album
 
     public function serialOneAlbum()
     {   
-        $songs = $this->getSongIdSong();
+        $albumId = $this->getIdAlbum();
+        $songs = $this->songRepository->findAllSongsByAlbum($albumId);
+
         $serializedSongs = [];
-        foreach ($songs as $song) {
-            $serializedSongs[] = $song->SerializerUser();
+
+        foreach($songs as $song){
+            $featuringArtists = $this->artistRepository->findFeaturingArtist($song->getId());
+            $serializedFeaturing = [];
+
+            foreach ($featuringArtists as $artist){
+                $serializedFeaturing[] = $artist->serialAlbum();
+            }
+
+            $serializedSongs[] = [
+                'id' => $song->getId(),
+                'title' => $song->getTitle(),
+                'cover' => '$song->getCover()',
+                'createdAt' => $song->getCreatedAt(),
+                'featuring' => $serializedFeaturing,
+            ];
         }
+
         return [
-            "id" => $this->getIdAlbum(),
+            "id" => $albumId,
             "nom" => $this->getNom(),
             "categ" => $this->getCateg(),
             "label" => $this->getArtistIdUser()->getArtistHasLabel()->last(),

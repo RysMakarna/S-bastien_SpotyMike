@@ -4,9 +4,11 @@ namespace App\Controller;
 
 use App\Entity\Album;
 use App\Entity\Artist;
+use App\Repository\SongRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
@@ -15,11 +17,13 @@ class AlbumController extends AbstractController
 {
     private $entityManager;
     private $tokenVerifier;
+    private $songRepository;
 
-    public function __construct(EntityManagerInterface $entityManager, TokenService  $tokenService)
+    public function __construct(EntityManagerInterface $entityManager, TokenService  $tokenService, SongRepository $songRepository)
     {
         $this->entityManager = $entityManager;
         $this->tokenVerifier = $tokenService;
+        $this->songRepository = $songRepository;
     }
 
     #[Route('/album', name: 'app_album')]
@@ -224,5 +228,12 @@ class AlbumController extends AbstractController
 
         }
 
+    }
+
+    public function findSongsByAlbum($id): Response
+    {
+        $songs = $this->songRepository->findAllSongByAlbum($id);
+
+        return $this->json($songs);
     }
 }
